@@ -127,6 +127,10 @@ body {
   justify-content: center;
 }
 
+.controls--stops {
+  flex-wrap: wrap;
+}
+
 .button {
   flex: 1;
   min-width: 120px;
@@ -153,9 +157,19 @@ body {
   background: linear-gradient(180deg, #ff5f6d, #ffc371);
 }
 
+.button--stop {
+  background: linear-gradient(180deg, #f3ec78, #af4261);
+}
+
 .button:active {
   transform: translateY(2px);
   box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
 }
 
 .log {

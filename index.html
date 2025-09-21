@@ -16,21 +16,21 @@
       <section class="slot">
         <div class="slot__reels" aria-label="スロットリール">
           <div class="reel" data-reel="1">
-            <ul class="reel__window">
+            <ul class="reel__window" id="reel-1-window">
               <li class="symbol">7</li>
               <li class="symbol">BAR</li>
               <li class="symbol">🍒</li>
             </ul>
           </div>
           <div class="reel" data-reel="2">
-            <ul class="reel__window">
+            <ul class="reel__window" id="reel-2-window">
               <li class="symbol">7</li>
               <li class="symbol">BAR</li>
               <li class="symbol">🍒</li>
             </ul>
           </div>
           <div class="reel" data-reel="3">
-            <ul class="reel__window">
+            <ul class="reel__window" id="reel-3-window">
               <li class="symbol">7</li>
               <li class="symbol">BAR</li>
               <li class="symbol">🍒</li>
@@ -54,6 +54,18 @@
         <button class="button" id="bet-button">BET</button>
         <button class="button" id="spin-button">SPIN</button>
         <button class="button" id="reset-button">RESET</button>
+      </section>
+
+      <section class="controls controls--stops" aria-label="リール停止ボタン">
+        <button class="button button--stop" id="stop-button-1" disabled>
+          STOP 1
+        </button>
+        <button class="button button--stop" id="stop-button-2" disabled>
+          STOP 2
+        </button>
+        <button class="button button--stop" id="stop-button-3" disabled>
+          STOP 3
+        </button>
       </section>
 
       <section class="log" aria-live="polite">
