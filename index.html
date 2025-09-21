@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>スロットシミュレーター</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <h1 class="app__title">HTML/CSS/JS パチスロ</h1>
+        <p class="app__subtitle">基盤構造（仮）</p>
+      </header>
+
+      <section class="slot">
+        <div class="slot__reels" aria-label="スロットリール">
+          <div class="reel" data-reel="1">
+            <ul class="reel__window">
+              <li class="symbol">7</li>
+              <li class="symbol">BAR</li>
+              <li class="symbol">🍒</li>
+            </ul>
+          </div>
+          <div class="reel" data-reel="2">
+            <ul class="reel__window">
+              <li class="symbol">7</li>
+              <li class="symbol">BAR</li>
+              <li class="symbol">🍒</li>
+            </ul>
+          </div>
+          <div class="reel" data-reel="3">
+            <ul class="reel__window">
+              <li class="symbol">7</li>
+              <li class="symbol">BAR</li>
+              <li class="symbol">🍒</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="slot__panel">
+          <div class="panel__credits">
+            <span class="panel__label">クレジット</span>
+            <span class="panel__value" id="credit-display">000</span>
+          </div>
+          <div class="panel__bet">
+            <span class="panel__label">BET</span>
+            <span class="panel__value" id="bet-display">00</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="controls" aria-label="操作ボタン">
+        <button class="button" id="bet-button">BET</button>
+        <button class="button" id="spin-button">SPIN</button>
+        <button class="button" id="reset-button">RESET</button>
+      </section>
+
+      <section class="log" aria-live="polite">
+        <h2 class="log__title">イベントログ</h2>
+        <ul class="log__list" id="event-log"></ul>
+      </section>
+    </main>
+
+    <script type="module" src="script.js"></script>
+  </body>
+</html>
