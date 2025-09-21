@@ -23,6 +23,10 @@ class MockElement {
     this._children.unshift(child);
   }
 
+  appendChild(child) {
+    this._children.push(child);
+  }
+
   removeChild(child) {
     const index = this._children.indexOf(child);
     if (index >= 0) {
@@ -87,6 +91,16 @@ function createTestDocument({ initialCredits = 50 } = {}) {
   const betButton = new MockButton('bet-button', doc);
   const spinButton = new MockButton('spin-button', doc);
   const resetButton = new MockButton('reset-button', doc);
+  const reelWindows = [1, 2, 3].map((index) => {
+    const reelWindow = new MockElement(`reel-${index}-window`, doc);
+    for (let i = 0; i < 3; i += 1) {
+      reelWindow.appendChild(new MockElement(`symbol-${index}-${i}`, doc));
+    }
+    return reelWindow;
+  });
+  const stopButtons = [1, 2, 3].map(
+    (index) => new MockButton(`stop-button-${index}`, doc)
+  );
 
   doc.registerElement('credit-display', creditDisplay);
   doc.registerElement('bet-display', betDisplay);
@@ -94,6 +108,12 @@ function createTestDocument({ initialCredits = 50 } = {}) {
   doc.registerElement('bet-button', betButton);
   doc.registerElement('spin-button', spinButton);
   doc.registerElement('reset-button', resetButton);
+  reelWindows.forEach((reelWindow, index) => {
+    doc.registerElement(`reel-${index + 1}-window`, reelWindow);
+  });
+  stopButtons.forEach((button, index) => {
+    doc.registerElement(`stop-button-${index + 1}`, button);
+  });
 
   return {
     doc,
@@ -104,6 +124,8 @@ function createTestDocument({ initialCredits = 50 } = {}) {
       betButton,
       spinButton,
       resetButton,
+      reelWindows,
+      stopButtons,
     },
     initialCredits,
   };
@@ -174,6 +196,31 @@ test('handleSpin consumes credits and resets bet', () => {
   assert.equal(elements.creditDisplay.textContent, '048');
   assert.equal(elements.betDisplay.textContent, '00');
   assert.ok(latestLogText(elements.eventLog).includes('BET: 02'));
+});
+
+test('stopReel halts spinning reels and finalises the spin', () => {
+  const { doc, elements } = createTestDocument();
+  const machine = mountSlotMachine(doc, {
+    timestampProvider: () => new Date('2023-01-01T00:00:00Z'),
+    randomProvider: () => 0,
+  });
+
+  machine.handleBet();
+  machine.handleSpin();
+
+  elements.stopButtons.forEach((button) => {
+    assert.equal(button.disabled, false);
+  });
+
+  machine.stopReel(0);
+  machine.stopReel(1);
+  machine.stopReel(2);
+
+  assert.equal(elements.spinButton.disabled, false);
+  elements.stopButtons.forEach((button) => {
+    assert.equal(button.disabled, true);
+  });
+  assert.ok(latestLogText(elements.eventLog).includes('スピン終了'));
 });
 
 test('handleSpin warns when no bet is set', () => {
