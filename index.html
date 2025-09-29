@@ -3,68 +3,63 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>スロットシミュレーター</title>
+    <title>パチンコシミュレーター</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <main class="app">
       <header class="app__header">
-        <h1 class="app__title">HTML/CSS/JS パチスロ</h1>
-        <p class="app__subtitle">基盤構造（仮）</p>
+        <h1 class="app__title">HTML/CSS/JS パチンコ</h1>
+        <p class="app__subtitle">
+          盤面に玉を打ち出して入賞ポケットを狙う、確率演出付きパチンコデモ
+        </p>
       </header>
 
-      <section class="slot">
-        <div class="slot__reels" aria-label="スロットリール">
-          <div class="reel" data-reel="1">
-            <ul class="reel__window" id="reel-1-window">
-              <li class="symbol">7</li>
-              <li class="symbol">BAR</li>
-              <li class="symbol">🍒</li>
-            </ul>
-          </div>
-          <div class="reel" data-reel="2">
-            <ul class="reel__window" id="reel-2-window">
-              <li class="symbol">7</li>
-              <li class="symbol">BAR</li>
-              <li class="symbol">🍒</li>
-            </ul>
-          </div>
-          <div class="reel" data-reel="3">
-            <ul class="reel__window" id="reel-3-window">
-              <li class="symbol">7</li>
-              <li class="symbol">BAR</li>
-              <li class="symbol">🍒</li>
-            </ul>
-          </div>
+      <section class="status" aria-label="ゲーム状況">
+        <div class="status__item">
+          <span class="status__label">クレジット</span>
+          <span class="status__value" id="credit-display">000</span>
         </div>
+        <div class="status__item">
+          <span class="status__label">打ち出し数</span>
+          <span class="status__value" id="ball-count">000</span>
+        </div>
+        <div class="status__item status__item--result">
+          <span class="status__label">直近の結果</span>
+          <span class="status__value status__value--result" id="last-result"
+            >---</span
+          >
+        </div>
+      </section>
 
-        <div class="slot__panel">
-          <div class="panel__credits">
-            <span class="panel__label">クレジット</span>
-            <span class="panel__value" id="credit-display">000</span>
-          </div>
-          <div class="panel__bet">
-            <span class="panel__label">BET</span>
-            <span class="panel__value" id="bet-display">00</span>
+      <section class="board" aria-label="パチンコ盤面">
+        <div class="pachinko" role="group" aria-label="盤面表示">
+          <div class="pachinko__glass"></div>
+          <div class="pachinko__frame"></div>
+          <div class="pachinko__board" id="pachinko-board">
+            <div class="board__pins" aria-hidden="true"></div>
+            <div class="board__pockets" id="pocket-row" aria-hidden="false"></div>
           </div>
         </div>
+        <aside class="board__info">
+          <div class="board__reels" aria-label="リール演出">
+            <div class="reels" id="reel-container" aria-live="polite"></div>
+            <div class="reach" id="reach-indicator">---</div>
+          </div>
+          <h2 class="board__title">遊び方</h2>
+          <ol class="board__steps">
+            <li>「玉を打ち出す」を押すとクレジットを1消費して玉を発射します。</li>
+            <li>玉はランダムに落下し、入賞ポケットに入るとポケットが回転演出を行います。</li>
+            <li>抽選は1/99で大当たり。大当たりの1/4でRUSHに突入し、RUSH時は高配当を獲得できます。</li>
+            <li>1球ごとにリールが1回転し、2リール目で「リーチ」が掛かると大当たりのチャンスです。</li>
+          </ol>
+        </aside>
       </section>
 
       <section class="controls" aria-label="操作ボタン">
-        <button class="button" id="bet-button">BET</button>
-        <button class="button" id="spin-button">SPIN</button>
-        <button class="button" id="reset-button">RESET</button>
-      </section>
-
-      <section class="controls controls--stops" aria-label="リール停止ボタン">
-        <button class="button button--stop" id="stop-button-1" disabled>
-          STOP 1
-        </button>
-        <button class="button button--stop" id="stop-button-2" disabled>
-          STOP 2
-        </button>
-        <button class="button button--stop" id="stop-button-3" disabled>
-          STOP 3
+        <button class="button" id="shoot-button">玉を打ち出す</button>
+        <button class="button button--secondary" id="reset-button">
+          リセット
         </button>
       </section>
 
