@@ -88,6 +88,9 @@ export class PachinkoGame {
       resetButton,
       board,
       pocketRow,
+      slotReelLeft,
+      slotReelCenter,
+      slotReelRight,
     } = elements;
 
     if (!creditDisplay || !ballCountDisplay || !eventLog) {
@@ -104,6 +107,11 @@ export class PachinkoGame {
     this.resetButton = resetButton ?? null;
     this.board = board ?? null;
     this.pocketRow = pocketRow ?? null;
+    this.slotReelElements = [
+      slotReelLeft ?? null,
+      slotReelCenter ?? null,
+      slotReelRight ?? null,
+    ];
 
     this.config = { ...DEFAULT_CONFIG, ...config };
 
@@ -118,6 +126,13 @@ export class PachinkoGame {
     this.highlightTimeout = null;
     this.spinTimeouts = new Map();
     this.lastOutcome = null;
+    this.reelStates = [];
+    this.reelUpdateInterval = 80;
+    this.reelStopOrder = [
+      { index: 0, delay: 1000 },
+      { index: 2, delay: 1400 },
+      { index: 1, delay: 1800 },
+    ];
 
     this.handleShoot = this.handleShoot.bind(this);
     this.handleReset = this.handleReset.bind(this);
@@ -132,6 +147,7 @@ export class PachinkoGame {
       this.resetButton.addEventListener('click', this.handleReset);
     }
 
+    this.setupReels();
     this.renderPockets();
     this.updateDisplays();
     this.addLog('パチンコ盤面を初期化しました。');
@@ -175,6 +191,204 @@ export class PachinkoGame {
       this.pocketRow.appendChild(pocketElement);
       this.pocketElements.set(pocket.id, pocketElement);
     });
+  }
+
+  setupReels() {
+    if (!Array.isArray(this.slotReelElements)) {
+      this.reelStates = [];
+      return;
+    }
+
+    this.reelStates = this.slotReelElements.map((element, index) => {
+      if (!element) {
+        return null;
+      }
+
+      const valueElement =
+        element.querySelector?.('.slot-reel__value') ??
+        element.firstElementChild ??
+        element;
+
+      if (valueElement && !`${valueElement.textContent ?? ''}`.trim()) {
+        valueElement.textContent = String(this.getInitialReelValue(index));
+      }
+
+      return {
+        element,
+        valueElement,
+        intervalId: null,
+        timeoutId: null,
+      };
+    });
+
+    if (this.reelStates.some((state) => state)) {
+      this.resetReels();
+    }
+  }
+
+  hasReels() {
+    return Array.isArray(this.reelStates) && this.reelStates.some((state) => state);
+  }
+
+  clearReelState(state, { removeClass = true } = {}) {
+    if (!state) {
+      return;
+    }
+
+    if (state.intervalId) {
+      clearInterval(state.intervalId);
+      state.intervalId = null;
+    }
+
+    if (state.timeoutId) {
+      clearTimeout(state.timeoutId);
+      state.timeoutId = null;
+    }
+
+    if (removeClass) {
+      state.element.classList.remove('slot-reel--spinning');
+    }
+  }
+
+  clearReelAnimations({ removeClass = true } = {}) {
+    if (!Array.isArray(this.reelStates)) {
+      return;
+    }
+
+    this.reelStates.forEach((state) => {
+      if (!state) {
+        return;
+      }
+      this.clearReelState(state, { removeClass });
+    });
+  }
+
+  resetReels() {
+    if (!this.hasReels()) {
+      return;
+    }
+
+    this.clearReelAnimations();
+    this.reelStates.forEach((state, index) => {
+      if (!state) {
+        return;
+      }
+
+      const value = this.getInitialReelValue(index);
+      if (state.valueElement) {
+        state.valueElement.textContent = String(value);
+      }
+      state.element.classList.remove('slot-reel--spinning');
+    });
+  }
+
+  startReels() {
+    if (!this.hasReels()) {
+      return;
+    }
+
+    this.clearReelAnimations({ removeClass: true });
+
+    this.reelStates.forEach((state) => {
+      if (!state) {
+        return;
+      }
+
+      state.element.classList.add('slot-reel--spinning');
+      const interval = setInterval(() => {
+        if (state.valueElement) {
+          state.valueElement.textContent = String(this.getRandomDigit());
+        }
+      }, this.reelUpdateInterval);
+      state.intervalId = interval;
+      if (typeof interval?.unref === 'function') {
+        interval.unref();
+      }
+    });
+  }
+
+  determineReelResults(outcome) {
+    if (!this.hasReels()) {
+      return [];
+    }
+
+    const reelCount = this.reelStates.length;
+    const randomDigit = () => this.getRandomDigit();
+
+    if (outcome?.isRush) {
+      return Array.from({ length: reelCount }, () => 9);
+    }
+
+    if (outcome?.isWin) {
+      const digit = randomDigit();
+      return Array.from({ length: reelCount }, () => digit);
+    }
+
+    const results = Array.from({ length: reelCount }, randomDigit);
+    if (results.length > 0) {
+      const allSame = results.every((value) => value === results[0]);
+      if (allSame) {
+        const base = results[0];
+        results[results.length - 1] = base === 9 ? 1 : base + 1;
+      }
+    }
+
+    return results;
+  }
+
+  stopReels(outcome) {
+    if (!this.hasReels()) {
+      return;
+    }
+
+    const finalValues = this.determineReelResults(outcome);
+    const delayMap = new Map();
+
+    this.reelStopOrder.forEach(({ index, delay }, orderIndex) => {
+      const fallback = 950 + orderIndex * 320;
+      delayMap.set(index, delay ?? fallback);
+    });
+
+    this.reelStates.forEach((state, index) => {
+      if (!state) {
+        return;
+      }
+
+      const delay = delayMap.get(index) ?? 1000 + index * 240;
+      const finalValue = finalValues[index] ?? this.getRandomDigit();
+      const timeout = setTimeout(() => {
+        if (state.intervalId) {
+          clearInterval(state.intervalId);
+          state.intervalId = null;
+        }
+
+        if (state.valueElement) {
+          state.valueElement.textContent = String(finalValue);
+        }
+
+        state.element.classList.remove('slot-reel--spinning');
+        state.timeoutId = null;
+      }, delay);
+
+      state.timeoutId = timeout;
+      if (typeof timeout?.unref === 'function') {
+        timeout.unref();
+      }
+    });
+  }
+
+  getRandomDigit() {
+    return 1 + Math.floor(this.getRandom() * 9);
+  }
+
+  getInitialReelValue(index = 0) {
+    if (!Number.isFinite(index)) {
+      return 1;
+    }
+
+    const normalized = Math.max(0, Math.floor(index));
+    const base = (normalized * 3) % 9;
+    return base + 1;
   }
 
   updateDisplays() {
@@ -221,6 +435,7 @@ export class PachinkoGame {
       )} / 残り:${formatNumber(this.credits)})`
     );
 
+    this.startReels();
     this.animateBall(pocket);
   }
 
@@ -285,6 +500,7 @@ export class PachinkoGame {
     this.updateLastResult(pocket, outcome);
     this.highlightPocket(pocket.id, outcome.isWin);
     this.spinPocket(pocket.id);
+    this.stopReels(outcome);
 
     if (outcome.isWin) {
       if (outcome.isRush) {
@@ -467,6 +683,7 @@ export class PachinkoGame {
       clearTimeout(timeout);
     });
     this.spinTimeouts.clear();
+    this.resetReels();
     this.addLog('初期状態にリセットしました。');
   }
 }
@@ -485,6 +702,9 @@ export function mountPachinko(doc = document, config = {}) {
     resetButton: doc.getElementById('reset-button'),
     board: doc.getElementById('pachinko-board'),
     pocketRow: doc.getElementById('pocket-row'),
+    slotReelLeft: doc.getElementById('slot-reel-left'),
+    slotReelCenter: doc.getElementById('slot-reel-center'),
+    slotReelRight: doc.getElementById('slot-reel-right'),
   };
 
   return new PachinkoGame(elements, config).init();
