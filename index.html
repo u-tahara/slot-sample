@@ -11,73 +11,57 @@
       <header class="app__header">
         <h1 class="app__title">HTML/CSS/JS パチンコ</h1>
         <p class="app__subtitle">
-          盤面に玉を打ち出して入賞ポケットを狙う、確率演出付きパチンコデモ
+          リール演出と抽選結果をワンビューで楽しめるデモ
         </p>
       </header>
 
-      <section class="slot-display" aria-label="スロットリール">
-        <h2 class="slot-display__title">リール</h2>
-        <div class="slot-display__reels">
-          <div class="slot-reel" id="slot-reel-left" data-position="left">
-            <span class="slot-reel__value">1</span>
+      <div class="app__content">
+        <section class="slot-display" aria-label="スロットリール">
+          <h2 class="slot-display__title">リール</h2>
+          <div class="slot-display__reels">
+            <div class="slot-reel" id="slot-reel-left" data-position="left">
+              <span class="slot-reel__value">1</span>
+            </div>
+            <div class="slot-reel" id="slot-reel-center" data-position="center">
+              <span class="slot-reel__value">4</span>
+            </div>
+            <div class="slot-reel" id="slot-reel-right" data-position="right">
+              <span class="slot-reel__value">7</span>
+            </div>
           </div>
-          <div class="slot-reel" id="slot-reel-center" data-position="center">
-            <span class="slot-reel__value">4</span>
-          </div>
-          <div class="slot-reel" id="slot-reel-right" data-position="right">
-            <span class="slot-reel__value">7</span>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <section class="status" aria-label="ゲーム状況">
-        <div class="status__item">
-          <span class="status__label">クレジット</span>
-          <span class="status__value" id="credit-display">000</span>
-        </div>
-        <div class="status__item">
-          <span class="status__label">打ち出し数</span>
-          <span class="status__value" id="ball-count">000</span>
-        </div>
-        <div class="status__item status__item--result">
-          <span class="status__label">直近の結果</span>
-          <span class="status__value status__value--result" id="last-result"
-            >---</span
-          >
-        </div>
-      </section>
+        <aside class="app__sidebar">
+          <section class="status" aria-label="ゲーム状況">
+            <div class="status__item">
+              <span class="status__label">クレジット</span>
+              <span class="status__value" id="credit-display">000</span>
+            </div>
+            <div class="status__item">
+              <span class="status__label">打ち出し数</span>
+              <span class="status__value" id="ball-count">000</span>
+            </div>
+            <div class="status__item">
+              <span class="status__label">直近の結果</span>
+              <span class="status__value status__value--result" id="last-result"
+                >---</span
+              >
+            </div>
+          </section>
 
-      <section class="board" aria-label="パチンコ盤面">
-        <div class="pachinko" role="group" aria-label="盤面表示">
-          <div class="pachinko__glass"></div>
-          <div class="pachinko__frame"></div>
-          <div class="pachinko__board" id="pachinko-board">
-            <div class="board__pins" aria-hidden="true"></div>
-            <div class="board__pockets" id="pocket-row" aria-hidden="false"></div>
-          </div>
-        </div>
-        <aside class="board__info">
-          <h2 class="board__title">遊び方</h2>
-          <ol class="board__steps">
-            <li>「玉を打ち出す」を押すとクレジットを1消費して玉を発射します。</li>
-            <li>玉はランダムに落下し、入賞ポケットに入るとポケットが回転演出を行います。</li>
-            <li>抽選は1/99で大当たり。大当たりの1/4でRUSHに突入し、RUSH時は高配当を獲得できます。</li>
-            <li>ログで演出結果を確認しながらクレジットが尽きる前に連チャンを狙いましょう。</li>
-          </ol>
+          <section class="controls" aria-label="操作ボタン">
+            <button class="button" id="shoot-button">玉を打ち出す</button>
+            <button class="button button--secondary" id="reset-button">
+              リセット
+            </button>
+          </section>
+
+          <section class="log" aria-live="polite">
+            <h2 class="log__title">イベントログ</h2>
+            <ul class="log__list" id="event-log"></ul>
+          </section>
         </aside>
-      </section>
-
-      <section class="controls" aria-label="操作ボタン">
-        <button class="button" id="shoot-button">玉を打ち出す</button>
-        <button class="button button--secondary" id="reset-button">
-          リセット
-        </button>
-      </section>
-
-      <section class="log" aria-live="polite">
-        <h2 class="log__title">イベントログ</h2>
-        <ul class="log__list" id="event-log"></ul>
-      </section>
+      </div>
     </main>
 
     <script type="module" src="script.js"></script>
